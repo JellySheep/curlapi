@@ -1,0 +1,24 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: artem
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: curl_vulnerabilities
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  app:
+    build: .
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    # Это важно: контейнер не должен упасть после старта
+    command: tail -f /dev/null
+    environment:
+      # Чтобы db_filler знал, куда подключаться внутри докера
+      DB_HOST: db

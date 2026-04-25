@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["ID", "vendor_release_date", "vendor_release_url", "published_date", "updated_date", "description", "cvss_list", "cpe_list", "cwe"],
+    "properties": {
+      "ID": { "type": "string" },
+      "vendor_release_date": { "type": "string" },
+      "vendor_release_url": { "type": "string", "format": "uri" },
+      "published_date": { "type": "string" },
+      "updated_date": { "type": "string" },
+      "description": { "type": "string" },
+      "cvss_list": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "required": ["version", "score", "vector", "severity"],
+          "properties": {
+            "version": { "type": "string" },
+            "score": { "type": "number" },
+            "vector": { "type": "string" },
+            "severity": { "type": "string" }
+          }
+        }
+      },
+      "cpe_list": { 
+        "type": "array", 
+        "minItems": 1,
+        "items": { "type": "string" } 
+      },
+      "cwe": { 
+        "type": "object",
+        "minProperties": 1
+      }
+    }
+  }
+}
