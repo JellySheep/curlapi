@@ -16,7 +16,6 @@ def create_xml():
         vnode = ET.SubElement(root, "vulnerability")
         
         # Поля 1 уровня
-        # Добавил 'url', так как в твоем JSON из Задачи 1 оно обычно есть (vendor_release_url)
         for key in ["ID", "vendor_release_date", "vendor_release_url", "published_date", "updated_date", "description"]:
             child = ET.SubElement(vnode, key)
             child.text = str(item.get(key, ""))
