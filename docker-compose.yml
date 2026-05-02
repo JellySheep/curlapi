@@ -17,8 +17,7 @@ services:
       - .:/app
     depends_on:
       - db
-    # Это важно: контейнер не должен упасть после старта
+    # контейнер не должен упасть после старта
     command: tail -f /dev/null
     environment:
-      # Чтобы db_filler знал, куда подключаться внутри докера
       DB_HOST: db
