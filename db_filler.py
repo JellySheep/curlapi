@@ -3,12 +3,12 @@ import psycopg2
 from datetime import datetime
 import os
 
-# Настройки подключения (согласно docker-compose)
+# Настройки подключения 
 DB_CONFIG = {
     "dbname": "curl_vulnerabilities",
     "user": "artem",
     "password": "password",
-    "host": os.getenv("DB_HOST", "localhost"), # Будет искать 'db', если в докере
+    "host": os.getenv("DB_HOST", "localhost"), 
     "port": "5432"
 }
 
@@ -16,7 +16,6 @@ def parse_date(date_str):
     if not date_str:
         return None
     try:
-        # Простая попытка привести к формату для Postgres
         return date_str.split('T')[0]
     except:
         return None
