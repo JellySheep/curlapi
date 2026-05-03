@@ -2,6 +2,3 @@ requests
 beautifulsoup4
 jsonschema
 psycopg2-binary
-pandas
-cwe2
-openpyxl
