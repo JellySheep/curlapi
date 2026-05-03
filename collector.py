@@ -11,19 +11,19 @@ CWE_CACHE = {}
 def clean_description(raw_text):
     if not raw_text:
         return ""
-    # 1. Пытаемся вытащить суть, если есть заголовок CVE
+    # 1. Пытаемся вытащить суть
     match = re.search(r"CVE-\d{4}-\d+:\s*(.*)", raw_text, re.DOTALL | re.IGNORECASE)
     text = match.group(1).strip() if match else raw_text.strip()
     
-    # 2. Чистим от мусора: слово "Description", даты (YYYY-MM-DD), версии (8.x.x)
+    # 2. слово "Description", даты (YYYY-MM-DD), версии (8.x.x)
     text = re.sub(r'(?i)^description[:\s]*', '', text)
     text = re.sub(r'\d{4}-\d{2}-\d{2}', '', text)
     text = re.sub(r'\b\d+\.\d+\.\d+\b', '', text)
     
-    # 3. Убираем "lib" и остатки технических префиксов curl
+    # 3. "lib" и остатки технических префиксов curl
     text = re.sub(r'^\s*[M|L|H]\s+lib\s+', '', text, flags=re.MULTILINE)
     
-    # 4. Схлопываем лишние пробелы и переносы
+    # 4. лишние пробелы и переносы
     text = re.sub(r'\n\s*\n', '\n', text) 
     return text.strip()
 
@@ -157,8 +157,7 @@ def get_cve_details(cve_id, versions_from_main, raw_desc, vendor_date):
                             (cvss_data.get('baseSeverity') or entry.get('baseSeverity') or "UNKNOWN")
                         )
     except: pass
-
-    # Превращаем словарь в отсортированный список
+        
     cvss_list = sorted(top_cvss.values(), key=lambda x: x['version'], reverse=True)
 
     # 3. CPE
