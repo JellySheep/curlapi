@@ -78,19 +78,36 @@ def get_unified_cwe_info(cwe_id):
         return {"name": "Unclassified", "description": "No data found."}
     if cwe_id in CWE_CACHE:
         return CWE_CACHE[cwe_id]
+    
     try:
+        # Извлекаем только цифры
         cwe_num = re.search(r'\d+', cwe_id).group()
-        res = requests.get(f"https://cwe.mitre.org/data/definitions/{cwe_num}.html", timeout=10)
+        # Используем конкретный эндпоинт для слабостей (weakness)
+        api_url = f"https://cwe-api.mitre.org/api/v1/cwe/weakness/{cwe_num}"
+        res = requests.get(api_url, timeout=10)
+        
         if res.status_code == 200:
-            soup = BeautifulSoup(res.text, 'html.parser')
-            name = soup.find('h2').text.split(':')[-1].strip() if soup.find('h2') else f"Weakness {cwe_id}"
-            desc_div = soup.find('div', id='Description')
-            # Используем глубокую очистку для описания CWE
-            desc = clean_text_data(desc_div.text) if desc_div else "Description not available."
-            result = {"name": name, "description": desc}
-            CWE_CACHE[cwe_id] = result
-            return result
+            data = res.json()
+            # По спеке ответ содержит массив "Weaknesses"
+            if "Weaknesses" in data and len(data["Weaknesses"]) > 0:
+                item = data["Weaknesses"][0]
+                name = item.get("Name", f"Weakness {cwe_id}")
+                
+                # Вытаскиваем описание
+                desc_raw = item.get("Description", "")
+                if isinstance(desc_raw, dict):
+                    desc = desc_raw.get("text", str(desc_raw))
+                else:
+                    desc = str(desc_raw)
+                
+                # Чистим описание: убираем переносы строк и лишние пробелы для JSON
+                desc = " ".join(desc.split()) if desc else "Description not available."
+                
+                result = {"name": name, "description": desc}
+                CWE_CACHE[cwe_id] = result
+                return result
     except: pass
+    
     return {"name": f"Security Weakness {cwe_id}", "description": "Details not available."}
 
 def get_cve_details(cve_id, versions_from_main, raw_desc, vendor_date):
@@ -187,7 +204,6 @@ def main():
             if not links: continue
             cve_id = re.search(r'CVE-\d{4}-\d+', links[0].text).group()
             cols = row.find_all('td')
-            # Паттерн версии поддерживает X.Y и X.Y.Z
             v_main = re.findall(r'(\d+\.\d+(?:\.\d+)?)', cols[3].text) if len(cols) >= 4 else []
             date_m = re.search(r'\d{4}-\d{2}-\d{2}', row.get_text())
             rel_date = date_m.group(0) if date_m else "2024-01-01"
